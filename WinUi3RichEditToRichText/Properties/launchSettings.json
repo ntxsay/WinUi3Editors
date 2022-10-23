@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WinUi3RichEditToRichText (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "WinUi3RichEditToRichText (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
