@@ -7,7 +7,73 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Button x:Name="myButton" Click="myButton_Click">Click Me</Button>
-    </StackPanel>
+    <Grid>
+        <Grid.Resources>
+            <Style TargetType="AppBarButton" x:Key="editingAppBarBtnStyle">
+                <Setter Property="LabelPosition" Value="Collapsed" />
+                <Setter Property="IsEnabled" Value="{x:Bind IsEditingToolsEnabled, Mode=OneWay}" />
+            </Style>
+        </Grid.Resources>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <CommandBar Grid.Row="0" HorizontalAlignment="Left">
+                <AppBarButton ToolTipService.ToolTip="Gras" Label="Gras" Style="{StaticResource editingAppBarBtnStyle}" Click="AppBarItem_Bold_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE8DD;"/>
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton ToolTipService.ToolTip="Italique" Label="Italique" Style="{StaticResource editingAppBarBtnStyle}" Click="AppBarItem_Italic_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE8DB;"/>
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton ToolTipService.ToolTip="Souligner" Label="Souligner" Style="{StaticResource editingAppBarBtnStyle}" Click="AppBarItem_Underline_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE8DC;"/>
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton ToolTipService.ToolTip="Barrer" Label="Barrer" Style="{StaticResource editingAppBarBtnStyle}" Click="AppBarItem_Strikeout_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xEDE0;"/>
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarSeparator />
+                <AppBarButton ToolTipService.ToolTip="Aligner à gauche" Label="Aligner à gauche" Style="{StaticResource editingAppBarBtnStyle}" Click="AppBarItem_LeftAlign_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE8E4;"/>
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton ToolTipService.ToolTip="Aligner au centre" Label="Aligner au centre" Style="{StaticResource editingAppBarBtnStyle}" Click="AppBarItem_CenterAlign_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE8E3;"/>
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton ToolTipService.ToolTip="Aligner à droite" Label="Aligner à droite" Style="{StaticResource editingAppBarBtnStyle}" Click="AppBarItem_RightAlign_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE8E2;"/>
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton ToolTipService.ToolTip="Justifier" Label="Justifier" Style="{StaticResource editingAppBarBtnStyle}" Click="AppBarItem_JustifyAlign_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE8E2;"/>
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarSeparator />
+                <AppBarToggleButton ToolTipService.ToolTip="Aperçu" Label="Aperçu" LabelPosition="Collapsed" Click="AppBarItem_Preview_Click">
+                    <AppBarToggleButton.Icon>
+                        <FontIcon Glyph="&#xE8A1;"/>
+                    </AppBarToggleButton.Icon>
+                </AppBarToggleButton>
+                <AppBarSeparator />
+            </CommandBar>
+            <RichEditBox x:Name="richedit" Grid.Row="1" TextChanged="richedit_TextChanged"></RichEditBox>
+            <RichTextBlock x:Name="richTextBlock" Grid.Row="1" Visibility="Collapsed"></RichTextBlock>
+        </Grid>
+    </Grid>
 </Window>
