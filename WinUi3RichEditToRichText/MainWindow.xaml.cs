@@ -170,58 +170,160 @@ namespace WinUi3RichEditToRichText
 
         }
 
-        public string ConvertToHtml(RichEditBox richEditBox)
+        public void ConvertToHtml(RichEditBox richEditBox)
         {
-            //richTextBlock.Blocks.Clear();
+            richTextBlock.Blocks.Clear();
             string text, strColour, strFntName, strHTML;
             richEditBox.Document.GetText(TextGetOptions.None, out text);
             ITextRange txtRange = richEditBox.Document.GetRange(0, text.Length);
             strHTML = "<html>";
-            if (richTextBlock.Blocks.Count == 0)
-                richTextBlock.Blocks.Add(new Paragraph());
+            //if (richTextBlock.Blocks.Count == 0)
+            //    richTextBlock.Blocks.Add(new Paragraph());
 
-            Paragraph paragraph = richTextBlock.Blocks.FirstOrDefault() as Paragraph;
-            if (paragraph == null)
-                return null;
+            //Paragraph paragraph = richTextBlock.Blocks.FirstOrDefault() as Paragraph;
+            //if (paragraph == null)
+            //    return;
 
-            if (paragraph.Inlines.Count == 0)
-                paragraph.Inlines.Add(new Span());
+            //if (paragraph.Inlines.Count == 0)
+            //    paragraph.Inlines.Add(new Span());
 
-            Span span = paragraph.Inlines.FirstOrDefault() as Span ;
-            if (span == null)
-                return null;
-            span.Inlines.Clear();
+            //Span span = paragraph.Inlines.FirstOrDefault() as Span ;
+            //if (span == null)
+            //    return;
+            //span.Inlines.Clear();
 
             int lngOriginalStart = txtRange.StartPosition;
             int lngOriginalLength = txtRange.EndPosition;
             
-            //font
-            float fontSize = 11;
-            string fontName;
 
             // txtRange.SetRange(txtRange.StartPosition, txtRange.EndPosition);
-            bool bOpened = false, liOpened = false, numbLiOpened = false, iOpened = false, uOpened = false, bulletOpened = false, numberingOpened = false;
+            bool liOpened = false, numbLiOpened = false, bulletOpened = false, numberingOpened = false;
             for (int i = 0; i < text.Length; i++)
             {
-                //a l'index 0 impossible de trouver son précédent
-                bool isSamefromPrevious = i > 0;
-                Run run = new ();
-                Run previousRun = i > 0 ? span.Inlines[i - 1] as Run: null;
-
                 txtRange.SetRange(i, i + 1);
 
-                fontSize = txtRange.CharacterFormat.Size;
-                if (isSamefromPrevious == false || previousRun == null || fontSize != previousRun.FontSize)
+                if (richTextBlock.Blocks.Count == 0)
+                    richTextBlock.Blocks.Add(new Paragraph());
+
+                Paragraph paragraph = richTextBlock.Blocks.LastOrDefault() as Paragraph;
+                Paragraph nParagraph = null;
+                if (paragraph == null)
+                    return;
+
+                if (i == 0)
                 {
-                    isSamefromPrevious = false;
-                    run.FontSize = fontSize;
+                    paragraph.TextAlignment = txtRange.ParagraphFormat.Alignment switch
+                    {
+                        ParagraphAlignment.Undefined => TextAlignment.Left,
+                        ParagraphAlignment.Left => TextAlignment.Left,
+                        ParagraphAlignment.Center => TextAlignment.Center,
+                        ParagraphAlignment.Right => TextAlignment.Right,
+                        ParagraphAlignment.Justify => TextAlignment.Justify,
+                        _ => TextAlignment.Left,
+                    };
+                }
+                else
+                {
+                    switch (txtRange.ParagraphFormat.Alignment)
+                    {
+                        case ParagraphAlignment.Undefined:
+                            break;
+                        case ParagraphAlignment.Left:
+                            if (paragraph.TextAlignment != TextAlignment.Left)
+                            {
+                                if (nParagraph == null)
+                                {
+                                    nParagraph = new();
+                                    richTextBlock.Blocks.Add(nParagraph);
+                                }
+                                nParagraph.TextAlignment = TextAlignment.Left;
+                            }
+                            break;
+                        case ParagraphAlignment.Center:
+                            if (paragraph.TextAlignment != TextAlignment.Center)
+                            {
+                                if (nParagraph == null)
+                                {
+                                    nParagraph = new();
+                                    richTextBlock.Blocks.Add(nParagraph);
+                                }
+                                nParagraph.TextAlignment = TextAlignment.Center;
+                            }
+                            break;
+                        case ParagraphAlignment.Right:
+                            if (paragraph.TextAlignment != TextAlignment.Right)
+                            {
+                                if (nParagraph == null)
+                                {
+                                    nParagraph = new();
+                                    richTextBlock.Blocks.Add(nParagraph);
+                                }
+                                nParagraph.TextAlignment = TextAlignment.Right;
+                            }
+                            break;
+                        case ParagraphAlignment.Justify:
+                            if (paragraph.TextAlignment != TextAlignment.Justify)
+                            {
+                                if (nParagraph == null) {
+                                    nParagraph = new();
+                                    richTextBlock.Blocks.Add(nParagraph);
+                                }
+                                nParagraph.TextAlignment = TextAlignment.Justify;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+
                 }
 
-                fontName = txtRange.CharacterFormat.Name;
-                if (isSamefromPrevious == false || previousRun == null || fontName != previousRun.FontFamily.Source)
+                Paragraph currentParagraph = nParagraph ?? paragraph;
+                if (currentParagraph == null)
+                    continue;
+
+                //Run run = null;
+                bool isFirstChar = currentParagraph.Inlines.Count == 0;
+                //if (!isFirstChar)
+                //    run = currentParagraph.Inlines.LastOrDefault() as Run ?? new Run();
+                //else
+                //    run = new Run();
+                Run run = !isFirstChar ? currentParagraph.Inlines.LastOrDefault() as Run ?? new() : new();
+                Run nRun = null;
+
+                float fontSize = txtRange.CharacterFormat.Size;
+                if (isFirstChar || currentParagraph.Inlines.LastOrDefault() is not Run)
                 {
-                    isSamefromPrevious = false;
+                    run.FontSize = fontSize;
+                }
+                else
+                {
+                    if (fontSize != Convert.ToSingle(run.FontSize))
+                    {
+                        if (nRun == null) 
+                        { 
+                            nRun = new();
+                            currentParagraph.Inlines.Add(nRun);
+                        }
+                        nRun.FontSize = fontSize;
+                    }
+                }
+                
+                string fontName = txtRange.CharacterFormat.Name;
+                if (isFirstChar || currentParagraph.Inlines.LastOrDefault() is not Run)
+                {
                     run.FontFamily = new FontFamily(fontName);
+                }
+                else
+                {
+                    if (fontSize != Convert.ToSingle(run.FontSize))
+                    {
+                        if (nRun == null)
+                        {
+                            nRun = new();
+                            currentParagraph.Inlines.Add(nRun);
+                        }
+                        nRun.FontFamily = new FontFamily(fontName);
+                    }
                 }
 
                 //if (i == 0)
@@ -242,7 +344,8 @@ namespace WinUi3RichEditToRichText
 
                 if (txtRange.Character == Convert.ToChar(13))
                 {
-                    paragraph.Inlines.Add(new LineBreak());
+                    currentParagraph.Inlines.Add(new LineBreak());
+                    continue;
                 }
 
                 #region bullet
@@ -310,43 +413,43 @@ namespace WinUi3RichEditToRichText
                 #endregion
 
                 #region bold
-                if (txtRange.CharacterFormat.Bold == FormatEffect.On)
+                bool isBold = txtRange.CharacterFormat.Bold == FormatEffect.On;
+                if (isFirstChar || currentParagraph.Inlines.LastOrDefault() is not Run)
                 {
-                    if (isSamefromPrevious == false || previousRun == null || previousRun.FontWeight != FontWeights.Bold)
-                    {
-                        isSamefromPrevious = false;
-                        if (run.FontWeight != FontWeights.Bold)
-                            run.FontWeight = FontWeights.Bold;
-                    }
+                    run.FontWeight = isBold ? FontWeights.Bold : FontWeights.Normal;
                 }
                 else
                 {
-                    if (isSamefromPrevious == false || previousRun == null || previousRun.FontWeight != FontWeights.Normal)
+                    if (fontSize != Convert.ToSingle(run.FontSize))
                     {
-                        isSamefromPrevious = false;
-                        if (run.FontWeight != FontWeights.Normal)
-                            run.FontWeight = FontWeights.Normal;
+                        if (nRun == null)
+                        {
+                            nRun = new();
+                            paragraph.Inlines.Add(nRun);
+                        }
+
+                        nRun.FontWeight = isBold ? FontWeights.Bold : FontWeights.Normal;
                     }
                 }
                 #endregion
 
                 #region italic
-                if (txtRange.CharacterFormat.Italic == FormatEffect.On)
+                bool isItalic = txtRange.CharacterFormat.Italic == FormatEffect.On;
+                if (isFirstChar || currentParagraph.Inlines.LastOrDefault() is not Run)
                 {
-                    if (isSamefromPrevious == false || previousRun == null || previousRun.FontStyle != Windows.UI.Text.FontStyle.Italic)
-                    {
-                        isSamefromPrevious = false;
-                        if (run.FontStyle != Windows.UI.Text.FontStyle.Italic)
-                            run.FontStyle = Windows.UI.Text.FontStyle.Italic;
-                    }
+                    run.FontStyle = isItalic ? Windows.UI.Text.FontStyle.Italic : Windows.UI.Text.FontStyle.Normal;
                 }
                 else
                 {
-                    if (isSamefromPrevious == false || previousRun == null || previousRun.FontStyle != Windows.UI.Text.FontStyle.Normal)
+                    if (fontSize != Convert.ToSingle(run.FontSize))
                     {
-                        isSamefromPrevious = false;
-                        if (run.FontStyle == Windows.UI.Text.FontStyle.Italic)
-                            run.FontStyle = Windows.UI.Text.FontStyle.Normal;
+                        if (nRun == null)
+                        {
+                            nRun = new();
+                            currentParagraph.Inlines.Add(nRun);
+                        }
+
+                        nRun.FontStyle = isItalic ? Windows.UI.Text.FontStyle.Italic : Windows.UI.Text.FontStyle.Normal;
                     }
                 }
                 #endregion
@@ -377,63 +480,136 @@ namespace WinUi3RichEditToRichText
                 //}
                 //#endregion
 
-                if (txtRange.CharacterFormat.Underline == UnderlineType.Single && txtRange.CharacterFormat.Strikethrough == FormatEffect.On)
+                #region Text decoration
+                bool isUnderline = txtRange.CharacterFormat.Underline == UnderlineType.Single;
+                bool isStrikethrough = txtRange.CharacterFormat.Strikethrough == FormatEffect.On;
+                if (isFirstChar || currentParagraph.Inlines.LastOrDefault() is not Run)
                 {
-                    if (isSamefromPrevious == false || previousRun == null || previousRun.TextDecorations != Windows.UI.Text.TextDecorations.Strikethrough && previousRun.TextDecorations != Windows.UI.Text.TextDecorations.Underline)
-                    {
-                        isSamefromPrevious = false;
+                    if (isUnderline && isStrikethrough)
                         run.TextDecorations = Windows.UI.Text.TextDecorations.Strikethrough | Windows.UI.Text.TextDecorations.Underline;
-                    }
-                    //if (run.TextDecorations != Windows.UI.Text.TextDecorations.Underline)
-                    //    run.TextDecorations = Windows.UI.Text.TextDecorations.Underline;
-                }
-                else if (txtRange.CharacterFormat.Underline == UnderlineType.None && txtRange.CharacterFormat.Strikethrough == FormatEffect.On)
-                {
-                    if (isSamefromPrevious == false || previousRun == null || previousRun.TextDecorations != Windows.UI.Text.TextDecorations.Strikethrough)
-                    {
-                        isSamefromPrevious = false;
+                    else if (!isUnderline && isStrikethrough)
                         run.TextDecorations = Windows.UI.Text.TextDecorations.Strikethrough;
-                    }
-                    //if (run.TextDecorations != Windows.UI.Text.TextDecorations.Underline)
-                    //    run.TextDecorations = Windows.UI.Text.TextDecorations.Underline;
-                }
-                else if (txtRange.CharacterFormat.Underline == UnderlineType.Single && txtRange.CharacterFormat.Strikethrough == FormatEffect.Off)
-                {
-                    if (isSamefromPrevious == false || previousRun == null || previousRun.TextDecorations != Windows.UI.Text.TextDecorations.Underline)
-                    {
-                        isSamefromPrevious = false;
+                    else if (isUnderline && !isStrikethrough)
                         run.TextDecorations = Windows.UI.Text.TextDecorations.Underline;
-                    }
-                    //if (run.TextDecorations != Windows.UI.Text.TextDecorations.Underline)
-                    //    run.TextDecorations = Windows.UI.Text.TextDecorations.Underline;
-                }
-                else
-                {
-                    if (isSamefromPrevious == false || previousRun == null || previousRun.TextDecorations != Windows.UI.Text.TextDecorations.None)
-                    {
-                        isSamefromPrevious = false;
+                    else
                         run.TextDecorations = Windows.UI.Text.TextDecorations.None;
-                    }
-                }
-
-                Debug.WriteLine(run.TextDecorations.ToString());
-                strHTML += txtRange.Character;
-
-                if (isSamefromPrevious && previousRun != null)
-                {
-                    previousRun.Text += txtRange.Character.ToString();
                 }
                 else
                 {
-                    run.Text = txtRange.Character.ToString();
-                    span.Inlines.Add(run);
+                    if (isUnderline && isStrikethrough)
+                    {
+                        if (run.TextDecorations != Windows.UI.Text.TextDecorations.Underline || run.TextDecorations != Windows.UI.Text.TextDecorations.Strikethrough)
+                        {
+                            if (nRun == null)
+                            {
+                                nRun = new();
+                                currentParagraph.Inlines.Add(nRun);
+                            }
+                            nRun.TextDecorations = Windows.UI.Text.TextDecorations.Underline | Windows.UI.Text.TextDecorations.Strikethrough;
+                        }
+                    }
+                    else if (!isUnderline && isStrikethrough)
+                    {
+                        if (run.TextDecorations == Windows.UI.Text.TextDecorations.Underline || run.TextDecorations != Windows.UI.Text.TextDecorations.Strikethrough)
+                        {
+                            if (nRun == null)
+                            {
+                                nRun = new();
+                                currentParagraph.Inlines.Add(nRun);
+                            }
+                            nRun.TextDecorations = Windows.UI.Text.TextDecorations.Strikethrough;
+                        }
+                    }
+                    else if (isUnderline && !isStrikethrough)
+                    {
+                        if (run.TextDecorations != Windows.UI.Text.TextDecorations.Underline || run.TextDecorations == Windows.UI.Text.TextDecorations.Strikethrough)
+                        {
+                            if (nRun == null)
+                            {
+                                nRun = new();
+                                currentParagraph.Inlines.Add(nRun);
+                            }
+                            nRun.TextDecorations = Windows.UI.Text.TextDecorations.Underline;
+                        }
+                    }
+                    else
+                    {
+                        if (run.TextDecorations != Windows.UI.Text.TextDecorations.None)
+                        {
+                            if (nRun == null)
+                            {
+                                nRun = new();
+                                currentParagraph.Inlines.Add(nRun);
+                            }
+                            nRun.TextDecorations = Windows.UI.Text.TextDecorations.None;
+                        }
+                    }
                 }
+
+                //if (txtRange.CharacterFormat.Underline == UnderlineType.Single && txtRange.CharacterFormat.Strikethrough == FormatEffect.On)
+                //{
+                //    if (isSamefromPrevious == false || previousRun == null || previousRun.TextDecorations != Windows.UI.Text.TextDecorations.Strikethrough && previousRun.TextDecorations != Windows.UI.Text.TextDecorations.Underline)
+                //    {
+                //        isSamefromPrevious = false;
+                //        run.TextDecorations = Windows.UI.Text.TextDecorations.Strikethrough | Windows.UI.Text.TextDecorations.Underline;
+                //    }
+                //    //if (run.TextDecorations != Windows.UI.Text.TextDecorations.Underline)
+                //    //    run.TextDecorations = Windows.UI.Text.TextDecorations.Underline;
+                //}
+                //else if (txtRange.CharacterFormat.Underline == UnderlineType.None && txtRange.CharacterFormat.Strikethrough == FormatEffect.On)
+                //{
+                //    if (isSamefromPrevious == false || previousRun == null || previousRun.TextDecorations != Windows.UI.Text.TextDecorations.Strikethrough)
+                //    {
+                //        isSamefromPrevious = false;
+                //        run.TextDecorations = Windows.UI.Text.TextDecorations.Strikethrough;
+                //    }
+                //    //if (run.TextDecorations != Windows.UI.Text.TextDecorations.Underline)
+                //    //    run.TextDecorations = Windows.UI.Text.TextDecorations.Underline;
+                //}
+                //else if (txtRange.CharacterFormat.Underline == UnderlineType.Single && txtRange.CharacterFormat.Strikethrough == FormatEffect.Off)
+                //{
+                //    if (isSamefromPrevious == false || previousRun == null || previousRun.TextDecorations != Windows.UI.Text.TextDecorations.Underline)
+                //    {
+                //        isSamefromPrevious = false;
+                //    }
+                //    //if (run.TextDecorations != Windows.UI.Text.TextDecorations.Underline)
+                //    //    run.TextDecorations = Windows.UI.Text.TextDecorations.Underline;
+                //}
+                //else
+                //{
+                //    if (isSamefromPrevious == false || previousRun == null || previousRun.TextDecorations != Windows.UI.Text.TextDecorations.None)
+                //    {
+                //        isSamefromPrevious = false;
+                //        run.TextDecorations = Windows.UI.Text.TextDecorations.None;
+                //    }
+                //} 
+                #endregion
+
+                Run currentRun = nRun ?? run;
+                if (currentRun == null)
+                    continue;
+                if (!currentParagraph.Inlines.Contains(currentRun))
+                {
+                    currentParagraph.Inlines.Add(currentRun);
+                }
+                currentRun.Text += txtRange.Character.ToString();
+                //Debug.WriteLine(run.TextDecorations.ToString());
+                //strHTML += txtRange.Character;
+
+                //if (isSamefromPrevious && previousRun != null)
+                //{
+                //    previousRun.Text += txtRange.Character.ToString();
+                //}
+                //else
+                //{
+                //    run.Text = txtRange.Character.ToString();
+                //    span.Inlines.Add(run);
+                //}
             }
 
 
             strHTML += "</span></html>";
             //richTextBlock.Blocks.Add(paragraph);
-            return strHTML;
         }
 
         public void OnPropertyChanged([CallerMemberName] string propertyName = null)

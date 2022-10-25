@@ -73,7 +73,8 @@
                 <AppBarSeparator />
             </CommandBar>
             <RichEditBox x:Name="richedit" Grid.Row="1" TextChanged="richedit_TextChanged"></RichEditBox>
-            <RichTextBlock x:Name="richTextBlock" Grid.Row="1" Visibility="Collapsed"></RichTextBlock>
+            <RichTextBlock x:Name="richTextBlock" Grid.Row="1" Visibility="Collapsed">
+            </RichTextBlock>
         </Grid>
     </Grid>
 </Window>
