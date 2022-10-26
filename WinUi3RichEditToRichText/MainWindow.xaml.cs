@@ -1,4 +1,6 @@
-﻿using Microsoft.UI.Text;
+﻿using ABI.Windows.Foundation;
+using Microsoft.UI;
+using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -9,14 +11,17 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -43,9 +48,100 @@ namespace WinUi3RichEditToRichText
             }
         }
 
+        private ObservableCollection<ColorName> _ColorsNames = new();
+        public ObservableCollection<ColorName> ColorsNames
+        {
+            get => _ColorsNames;
+            set
+            {
+                if (_ColorsNames != value)
+                {
+                    _ColorsNames = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private ObservableCollection<ColorName> _RecentColors = new();
+        public ObservableCollection<ColorName> RecentColors
+        {
+            get => _RecentColors;
+            set
+            {
+                if (_RecentColors != value)
+                {
+                    _RecentColors = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public MainWindow()
         {
+            IEnumerable<ColorName> colors = GetColorNames();
+            foreach (ColorName color in colors)
+                this.ColorsNames.Add(color);
             this.InitializeComponent();
+        }
+
+        private void GridView_ForeColor_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            ITextSelection selectedText = richedit.Document.Selection;
+            if (selectedText != null)
+            {
+                ITextCharacterFormat charFormatting = selectedText.CharacterFormat;
+                if (e.ClickedItem is ColorName colorName)
+                {
+                    if (charFormatting.ForegroundColor != colorName.Color)
+                    {
+                        charFormatting.ForegroundColor = colorName.Color;
+                        this.rectCurrentColor.Background = colorName.Brush;
+                        AddRecentColor(colorName.Color);
+                    }
+
+                }
+                //selectedText.CharacterFormat = charFormatting;
+            }
+        }
+
+        private void Btn_SelectedColor_Click(object sender, RoutedEventArgs e)
+        {
+            ITextSelection selectedText = richedit.Document.Selection;
+            if (selectedText != null)
+            {
+                Color color = ((SolidColorBrush)rectCurrentColor.Background).Color;
+                ITextCharacterFormat charFormatting = selectedText.CharacterFormat;
+                if (charFormatting.ForegroundColor != color)
+                {
+                    charFormatting.ForegroundColor = color;
+                    AddRecentColor(color);
+                }
+            }
+        }
+
+        private void Btn_MoreForeColor_Click(object sender, RoutedEventArgs e)
+        {
+            splitView.IsPaneOpen = !splitView.IsPaneOpen;
+        }
+
+        private void Btn_ColorPickerApply_Click(object sender, RoutedEventArgs e)
+        {
+            ITextSelection selectedText = richedit.Document.Selection;
+            if (selectedText != null)
+            {
+                ITextCharacterFormat charFormatting = selectedText.CharacterFormat;
+                if (charFormatting.ForegroundColor != colorPicker.Color)
+                {
+                    charFormatting.ForegroundColor = colorPicker.Color;
+                    this.rectCurrentColor.Background = new SolidColorBrush(colorPicker.Color);
+                    AddRecentColor(colorPicker.Color);
+                }
+            }
+        }
+
+        private void Btn_ColorPickerCancel_Click(object sender, RoutedEventArgs e)
+        {
+            splitView.IsPaneOpen = false;
         }
 
         private void richedit_TextChanged(object sender, RoutedEventArgs e)
@@ -147,6 +243,32 @@ namespace WinUi3RichEditToRichText
             }
         }
 
+        private void AppBarItem_FontDecrease_Click(object sender, RoutedEventArgs e)
+        {
+            ITextSelection selectedText = richedit.Document.Selection;
+            if (selectedText != null)
+            {
+                var size = selectedText.CharacterFormat.Size;
+                if (size <= 9)
+                    selectedText.CharacterFormat.Size = 10.5f;
+                else if (size - 0.5 > 9)
+                    selectedText.CharacterFormat.Size -= 0.5f;
+            }
+        }
+
+        private void AppBarItem_FontIncrease_Click(object sender, RoutedEventArgs e)
+        {
+            ITextSelection selectedText = richedit.Document.Selection;
+            if (selectedText != null)
+            {
+                var size = selectedText.CharacterFormat.Size;
+                if (size <= 9)
+                    selectedText.CharacterFormat.Size = 10.5f;
+                else if (size + 0.5 < 200)
+                    selectedText.CharacterFormat.Size += 0.5f;
+            }
+        }
+
         private void AppBarItem_Preview_Click(object sender, RoutedEventArgs e)
         {
             if (sender is AppBarToggleButton appBarToggleButton)
@@ -177,26 +299,7 @@ namespace WinUi3RichEditToRichText
             richEditBox.Document.GetText(TextGetOptions.None, out text);
             ITextRange txtRange = richEditBox.Document.GetRange(0, text.Length);
             strHTML = "<html>";
-            //if (richTextBlock.Blocks.Count == 0)
-            //    richTextBlock.Blocks.Add(new Paragraph());
 
-            //Paragraph paragraph = richTextBlock.Blocks.FirstOrDefault() as Paragraph;
-            //if (paragraph == null)
-            //    return;
-
-            //if (paragraph.Inlines.Count == 0)
-            //    paragraph.Inlines.Add(new Span());
-
-            //Span span = paragraph.Inlines.FirstOrDefault() as Span ;
-            //if (span == null)
-            //    return;
-            //span.Inlines.Clear();
-
-            int lngOriginalStart = txtRange.StartPosition;
-            int lngOriginalLength = txtRange.EndPosition;
-            
-
-            // txtRange.SetRange(txtRange.StartPosition, txtRange.EndPosition);
             bool liOpened = false, numbLiOpened = false, bulletOpened = false, numberingOpened = false;
             for (int i = 0; i < text.Length; i++)
             {
@@ -288,10 +391,10 @@ namespace WinUi3RichEditToRichText
                 //else
                 //    run = new Run();
                 Run run = !isFirstChar ? currentParagraph.Inlines.LastOrDefault() as Run ?? new() : new();
-                Run nRun = null;
+                //Run nRun = null;
 
                 float fontSize = txtRange.CharacterFormat.Size;
-                if (isFirstChar || currentParagraph.Inlines.LastOrDefault() is not Run)
+                if (isFirstChar)
                 {
                     run.FontSize = fontSize;
                 }
@@ -299,49 +402,49 @@ namespace WinUi3RichEditToRichText
                 {
                     if (fontSize != Convert.ToSingle(run.FontSize))
                     {
-                        if (nRun == null) 
-                        { 
-                            nRun = new();
-                            currentParagraph.Inlines.Add(nRun);
-                        }
+                        Run nRun = CreateCopy(run);
                         nRun.FontSize = fontSize;
+                        currentParagraph.Inlines.Add(nRun);
+                        run = nRun;
                     }
                 }
-                
+
+                #region font Name
                 string fontName = txtRange.CharacterFormat.Name;
-                if (isFirstChar || currentParagraph.Inlines.LastOrDefault() is not Run)
+                if (isFirstChar)
                 {
                     run.FontFamily = new FontFamily(fontName);
                 }
                 else
                 {
-                    if (fontSize != Convert.ToSingle(run.FontSize))
+                    if (run.FontFamily.Source != fontName)
                     {
-                        if (nRun == null)
-                        {
-                            nRun = new();
-                            currentParagraph.Inlines.Add(nRun);
-                        }
+                        Run nRun = CreateCopy(run);
                         nRun.FontFamily = new FontFamily(fontName);
+                        currentParagraph.Inlines.Add(nRun);
+                        run = nRun;
                     }
                 }
+                #endregion
 
-                //if (i == 0)
-                //{
-                //    strColour = txtRange.CharacterFormat.ForegroundColor.ToString();
-                    
-                //}
-                //else
-                //{
-
-                //}
-
-                //if (txtRange.CharacterFormat.Size != shtSize)
-                //{
-                //    shtSize = txtRange.CharacterFormat.Size;
-                //    strHTML += "</span><span style=\"font-family: " + txtRange.CharacterFormat.Name + "; font-size: " + txtRange.CharacterFormat.Size + "pt; color: #" + txtRange.CharacterFormat.ForegroundColor.ToString().Substring(3) + "\">";
-                //}
-
+                #region font color
+                Color fontColor = txtRange.CharacterFormat.ForegroundColor;
+                if (isFirstChar)
+                {
+                    run.Foreground = new SolidColorBrush(fontColor);
+                }
+                else
+                {
+                    if (run.Foreground != new SolidColorBrush(fontColor))
+                    {
+                        Run nRun = CreateCopy(run);
+                        nRun.Foreground = new SolidColorBrush(fontColor);
+                        currentParagraph.Inlines.Add(nRun);
+                        run = nRun;
+                    }
+                }
+                #endregion
+                
                 if (txtRange.Character == Convert.ToChar(13))
                 {
                     currentParagraph.Inlines.Add(new LineBreak());
@@ -414,76 +517,44 @@ namespace WinUi3RichEditToRichText
 
                 #region bold
                 bool isBold = txtRange.CharacterFormat.Bold == FormatEffect.On;
-                if (isFirstChar || currentParagraph.Inlines.LastOrDefault() is not Run)
+                if (isFirstChar)
                 {
                     run.FontWeight = isBold ? FontWeights.Bold : FontWeights.Normal;
                 }
                 else
                 {
-                    if (fontSize != Convert.ToSingle(run.FontSize))
+                    if (isBold && run.FontWeight != FontWeights.Bold || !isBold && run.FontWeight == FontWeights.Bold)
                     {
-                        if (nRun == null)
-                        {
-                            nRun = new();
-                            paragraph.Inlines.Add(nRun);
-                        }
-
+                        Run nRun = CreateCopy(run);
                         nRun.FontWeight = isBold ? FontWeights.Bold : FontWeights.Normal;
+                        currentParagraph.Inlines.Add(nRun);
+                        run = nRun;
                     }
                 }
                 #endregion
 
                 #region italic
                 bool isItalic = txtRange.CharacterFormat.Italic == FormatEffect.On;
-                if (isFirstChar || currentParagraph.Inlines.LastOrDefault() is not Run)
+                if (isFirstChar)
                 {
                     run.FontStyle = isItalic ? Windows.UI.Text.FontStyle.Italic : Windows.UI.Text.FontStyle.Normal;
                 }
                 else
                 {
-                    if (fontSize != Convert.ToSingle(run.FontSize))
+                    if (isItalic && run.FontStyle != Windows.UI.Text.FontStyle.Italic || !isItalic && run.FontStyle == Windows.UI.Text.FontStyle.Italic)
                     {
-                        if (nRun == null)
-                        {
-                            nRun = new();
-                            currentParagraph.Inlines.Add(nRun);
-                        }
-
+                        Run nRun = CreateCopy(run);
                         nRun.FontStyle = isItalic ? Windows.UI.Text.FontStyle.Italic : Windows.UI.Text.FontStyle.Normal;
+                        currentParagraph.Inlines.Add(nRun);
+                        run = nRun;
                     }
                 }
                 #endregion
 
-                //#region underline
-                //if (txtRange.CharacterFormat.Underline == UnderlineType.Single)
-                //{
-                //    if (run.TextDecorations != Windows.UI.Text.TextDecorations.Underline)
-                //        run.TextDecorations = Windows.UI.Text.TextDecorations.Underline;
-                //}
-                //else
-                //{
-                //    if (run.TextDecorations == Windows.UI.Text.TextDecorations.Underline)
-                //        run.TextDecorations = Windows.UI.Text.TextDecorations.None;
-                //}
-                //#endregion
-
-                //#region strikeout
-                //if (txtRange.CharacterFormat.Strikethrough == FormatEffect.On)
-                //{
-                //    if (run.TextDecorations != Windows.UI.Text.TextDecorations.Strikethrough)
-                //        run.TextDecorations = Windows.UI.Text.TextDecorations.Strikethrough;
-                //}
-                //else
-                //{
-                //    if (run.TextDecorations == Windows.UI.Text.TextDecorations.Strikethrough)
-                //        run.TextDecorations = Windows.UI.Text.TextDecorations.None;
-                //}
-                //#endregion
-
                 #region Text decoration
                 bool isUnderline = txtRange.CharacterFormat.Underline == UnderlineType.Single;
                 bool isStrikethrough = txtRange.CharacterFormat.Strikethrough == FormatEffect.On;
-                if (isFirstChar || currentParagraph.Inlines.LastOrDefault() is not Run)
+                if (isFirstChar)
                 {
                     if (isUnderline && isStrikethrough)
                         run.TextDecorations = Windows.UI.Text.TextDecorations.Strikethrough | Windows.UI.Text.TextDecorations.Underline;
@@ -500,122 +571,143 @@ namespace WinUi3RichEditToRichText
                     {
                         if (run.TextDecorations != Windows.UI.Text.TextDecorations.Underline || run.TextDecorations != Windows.UI.Text.TextDecorations.Strikethrough)
                         {
-                            if (nRun == null)
-                            {
-                                nRun = new();
-                                currentParagraph.Inlines.Add(nRun);
-                            }
+                            Run nRun = CreateCopy(run);
                             nRun.TextDecorations = Windows.UI.Text.TextDecorations.Underline | Windows.UI.Text.TextDecorations.Strikethrough;
+                            currentParagraph.Inlines.Add(nRun);
+                            run = nRun;
                         }
                     }
                     else if (!isUnderline && isStrikethrough)
                     {
                         if (run.TextDecorations == Windows.UI.Text.TextDecorations.Underline || run.TextDecorations != Windows.UI.Text.TextDecorations.Strikethrough)
                         {
-                            if (nRun == null)
-                            {
-                                nRun = new();
-                                currentParagraph.Inlines.Add(nRun);
-                            }
+                            Run nRun = CreateCopy(run);
                             nRun.TextDecorations = Windows.UI.Text.TextDecorations.Strikethrough;
+                            currentParagraph.Inlines.Add(nRun);
+                            run = nRun;
                         }
                     }
                     else if (isUnderline && !isStrikethrough)
                     {
                         if (run.TextDecorations != Windows.UI.Text.TextDecorations.Underline || run.TextDecorations == Windows.UI.Text.TextDecorations.Strikethrough)
                         {
-                            if (nRun == null)
-                            {
-                                nRun = new();
-                                currentParagraph.Inlines.Add(nRun);
-                            }
+                            Run nRun = CreateCopy(run);
                             nRun.TextDecorations = Windows.UI.Text.TextDecorations.Underline;
+                            currentParagraph.Inlines.Add(nRun);
+                            run = nRun;
                         }
                     }
                     else
                     {
                         if (run.TextDecorations != Windows.UI.Text.TextDecorations.None)
                         {
-                            if (nRun == null)
-                            {
-                                nRun = new();
-                                currentParagraph.Inlines.Add(nRun);
-                            }
+                            Run nRun = CreateCopy(run);
                             nRun.TextDecorations = Windows.UI.Text.TextDecorations.None;
+                            currentParagraph.Inlines.Add(nRun);
+                            run = nRun;
                         }
                     }
                 }
-
-                //if (txtRange.CharacterFormat.Underline == UnderlineType.Single && txtRange.CharacterFormat.Strikethrough == FormatEffect.On)
-                //{
-                //    if (isSamefromPrevious == false || previousRun == null || previousRun.TextDecorations != Windows.UI.Text.TextDecorations.Strikethrough && previousRun.TextDecorations != Windows.UI.Text.TextDecorations.Underline)
-                //    {
-                //        isSamefromPrevious = false;
-                //        run.TextDecorations = Windows.UI.Text.TextDecorations.Strikethrough | Windows.UI.Text.TextDecorations.Underline;
-                //    }
-                //    //if (run.TextDecorations != Windows.UI.Text.TextDecorations.Underline)
-                //    //    run.TextDecorations = Windows.UI.Text.TextDecorations.Underline;
-                //}
-                //else if (txtRange.CharacterFormat.Underline == UnderlineType.None && txtRange.CharacterFormat.Strikethrough == FormatEffect.On)
-                //{
-                //    if (isSamefromPrevious == false || previousRun == null || previousRun.TextDecorations != Windows.UI.Text.TextDecorations.Strikethrough)
-                //    {
-                //        isSamefromPrevious = false;
-                //        run.TextDecorations = Windows.UI.Text.TextDecorations.Strikethrough;
-                //    }
-                //    //if (run.TextDecorations != Windows.UI.Text.TextDecorations.Underline)
-                //    //    run.TextDecorations = Windows.UI.Text.TextDecorations.Underline;
-                //}
-                //else if (txtRange.CharacterFormat.Underline == UnderlineType.Single && txtRange.CharacterFormat.Strikethrough == FormatEffect.Off)
-                //{
-                //    if (isSamefromPrevious == false || previousRun == null || previousRun.TextDecorations != Windows.UI.Text.TextDecorations.Underline)
-                //    {
-                //        isSamefromPrevious = false;
-                //    }
-                //    //if (run.TextDecorations != Windows.UI.Text.TextDecorations.Underline)
-                //    //    run.TextDecorations = Windows.UI.Text.TextDecorations.Underline;
-                //}
-                //else
-                //{
-                //    if (isSamefromPrevious == false || previousRun == null || previousRun.TextDecorations != Windows.UI.Text.TextDecorations.None)
-                //    {
-                //        isSamefromPrevious = false;
-                //        run.TextDecorations = Windows.UI.Text.TextDecorations.None;
-                //    }
-                //} 
                 #endregion
-
-                Run currentRun = nRun ?? run;
-                if (currentRun == null)
-                    continue;
-                if (!currentParagraph.Inlines.Contains(currentRun))
+               
+                if (!currentParagraph.Inlines.Contains(run))
                 {
-                    currentParagraph.Inlines.Add(currentRun);
+                    currentParagraph.Inlines.Add(run);
                 }
-                currentRun.Text += txtRange.Character.ToString();
-                //Debug.WriteLine(run.TextDecorations.ToString());
-                //strHTML += txtRange.Character;
-
-                //if (isSamefromPrevious && previousRun != null)
-                //{
-                //    previousRun.Text += txtRange.Character.ToString();
-                //}
-                //else
-                //{
-                //    run.Text = txtRange.Character.ToString();
-                //    span.Inlines.Add(run);
-                //}
+                run.Text += txtRange.Character.ToString();
             }
+        }
 
+        private static Run CreateCopy(Run source)
+        {
+            if (source == null)
+                return null;
 
-            strHTML += "</span></html>";
-            //richTextBlock.Blocks.Add(paragraph);
+            return new Run()
+            {
+                //FlowDirection = source.FlowDirection,
+                //AccessKey = source.AccessKey,
+                //AccessKeyScopeOwner = source.AccessKeyScopeOwner,
+                //AllowFocusOnInteraction = source.AllowFocusOnInteraction,
+                //ExitDisplayModeOnAccessKeyInvoked = source.ExitDisplayModeOnAccessKeyInvoked,
+                //IsAccessKeyScope = source.IsAccessKeyScope,
+                CharacterSpacing = source.CharacterSpacing,
+                FontFamily = source.FontFamily,
+                FontSize = source.FontSize,
+                FontStretch = source.FontStretch,
+                FontStyle = source.FontStyle,
+                FontWeight = source.FontWeight,
+                Foreground = source.Foreground,
+                IsTextScaleFactorEnabled = source.IsTextScaleFactorEnabled,
+                TextDecorations = source.TextDecorations,
+
+            };
+        }
+
+        private void AddRecentColor(Color color)
+        {
+            string colorName = "couleur inconnue";
+            ColorName item = RecentColors.FirstOrDefault(a => a.Color == color);
+            if (item.Equals(default(ColorName)))
+            {
+                foreach (var colorvalue in typeof(Colors).GetRuntimeProperties())
+                {
+                    if (colorvalue.PropertyType != typeof(Color))
+                        continue;
+
+                    if ((Color)colorvalue.GetValue(null) == color)
+                    {
+                        colorName = colorvalue.Name;
+                        break;
+                    }
+                }
+
+                if (RecentColors.Count < 5)
+                {
+                    RecentColors.Add(new ColorName(colorName, color));
+                }
+                else
+                {
+                    RecentColors.Remove(RecentColors.LastOrDefault());
+                    RecentColors.Insert(0, new ColorName(colorName, color));
+                }
+            }
+            else
+            {
+                RecentColors.Remove(item);
+                RecentColors.Insert(0, item);
+            }
+        }
+
+        public IEnumerable<ColorName> GetColorNames()
+        {
+            foreach (var color in typeof(Colors).GetRuntimeProperties())
+            {
+                if (color.PropertyType == typeof(Color))
+                    yield return new ColorName(color.Name, (Color)color.GetValue(null));
+            }
         }
 
         public void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             // Raise the PropertyChanged event, passing the name of the property whose value has changed.
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+       
+    }
+
+    public struct ColorName
+    {
+        public string Name { get; set; }
+        public Color Color { get; set; }
+        public Brush Brush { get; set; }
+
+        public ColorName(string name, Color color)
+        {
+            Name = name;
+            Color = color;
+            Brush = new SolidColorBrush(Color);
         }
     }
 }

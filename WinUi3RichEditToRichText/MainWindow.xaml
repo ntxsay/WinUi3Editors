@@ -65,6 +65,52 @@
                     </AppBarButton.Icon>
                 </AppBarButton>
                 <AppBarSeparator />
+                <AppBarButton ToolTipService.ToolTip="Réduire" Label="Réduire" Style="{StaticResource editingAppBarBtnStyle}" Click="AppBarItem_FontDecrease_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE8E7;"/>
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton ToolTipService.ToolTip="Agrandir" Label="Agrandir" Style="{StaticResource editingAppBarBtnStyle}" Click="AppBarItem_FontIncrease_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE8E8;"/>
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarSeparator />
+                <AppBarButton ToolTipService.ToolTip="Couleur" Label="Couleur" Style="{StaticResource editingAppBarBtnStyle}">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE8E8;"/>
+                    </AppBarButton.Icon>
+                    <AppBarButton.Flyout>
+                        <Flyout>
+                            <StackPanel Orientation="Vertical" Spacing="4">
+                                <Button Padding="0" Click="Btn_SelectedColor_Click">
+                                    <Border x:Name="rectCurrentColor" Height="24" Width="300" CornerRadius="4"/>
+                                </Button>
+                                <GridView ItemsSource="{x:Bind ColorsNames, Mode=OneWay}" MaxWidth="250" MaxHeight="300" ItemClick="GridView_ForeColor_ItemClick" IsItemClickEnabled="True">
+                                    <GridView.ItemTemplate>
+                                        <DataTemplate x:DataType="local:ColorName">
+                                            <Rectangle Fill="{x:Bind Brush}" Height="24" Width="24" Margin="6" ToolTipService.ToolTip="{x:Bind Name}"/>
+                                        </DataTemplate>
+                                    </GridView.ItemTemplate>
+                                </GridView>
+                                <StackPanel Orientation="Vertical" Spacing="2" Margin="0 6">
+                                    <TextBlock Text="Couleurs récentes" />
+                                    <GridView ItemsSource="{x:Bind RecentColors, Mode=OneWay}" MaxWidth="250" MaxHeight="60" ItemClick="GridView_ForeColor_ItemClick" IsItemClickEnabled="True">
+                                        <GridView.ItemTemplate>
+                                            <DataTemplate x:DataType="local:ColorName">
+                                                <Rectangle Fill="{x:Bind Brush}" Height="24" Width="24" Margin="6" ToolTipService.ToolTip="{x:Bind Name}"/>
+                                            </DataTemplate>
+                                        </GridView.ItemTemplate>
+                                    </GridView>
+                                </StackPanel>
+                                <Button Click="Btn_MoreForeColor_Click" HorizontalAlignment="Center">
+                                    <TextBlock Text="Plus de couleurs" />
+                                </Button>
+                            </StackPanel>
+                        </Flyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
+                <AppBarSeparator />
                 <AppBarToggleButton ToolTipService.ToolTip="Aperçu" Label="Aperçu" LabelPosition="Collapsed" Click="AppBarItem_Preview_Click">
                     <AppBarToggleButton.Icon>
                         <FontIcon Glyph="&#xE8A1;"/>
@@ -72,7 +118,36 @@
                 </AppBarToggleButton>
                 <AppBarSeparator />
             </CommandBar>
-            <RichEditBox x:Name="richedit" Grid.Row="1" TextChanged="richedit_TextChanged"></RichEditBox>
+            <SplitView x:Name="splitView" Grid.Row="1" IsPaneOpen="False" PanePlacement="Right" OpenPaneLength="400" PaneBackground="White">
+                <RichEditBox x:Name="richedit"></RichEditBox>
+                <SplitView.Pane>
+                    <Grid RowSpacing="4" BorderBrush="WhiteSmoke" BorderThickness="1 1 0 0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <ScrollViewer>
+                            <ColorPicker x:Name="colorPicker"
+      ColorSpectrumShape="Ring"
+      IsMoreButtonVisible="True"
+      IsColorSliderVisible="True"
+      IsColorChannelTextInputVisible="True"
+      IsHexInputVisible="True"
+      IsAlphaEnabled="True"
+      IsAlphaSliderVisible="True"
+      IsAlphaTextInputVisible="True" />
+                        </ScrollViewer>
+                        <StackPanel Grid.Row="1" Padding="0 4 4 4" Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right">
+                            <Button Click="Btn_ColorPickerApply_Click">
+                                <TextBlock Text="Appliquer"/>
+                            </Button>
+                            <Button Click="Btn_ColorPickerCancel_Click">
+                                <TextBlock Text="Annuler"/>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </SplitView.Pane>
+            </SplitView>
             <RichTextBlock x:Name="richTextBlock" Grid.Row="1" Visibility="Collapsed">
             </RichTextBlock>
         </Grid>
