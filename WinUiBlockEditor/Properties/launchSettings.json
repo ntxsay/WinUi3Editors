@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WinUiBlockEditor (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "WinUiBlockEditor (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
