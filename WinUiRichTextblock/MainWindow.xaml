@@ -1,0 +1,26 @@
+﻿<Window
+    x:Class="WinUiRichTextblock.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:WinUiRichTextblock"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid>
+        <RichTextBlock>
+            <Paragraph>
+                <Run Text="iojuojiojoijoijiojvrfoverfeepv everivrever"/>
+                <LineBreak />
+                <InlineUIContainer>
+                    <Expander Header="Spoil" VerticalAlignment="Center">
+                        <TextBlock Text="oidpozi^pzipovrujàvbp"></TextBlock>
+                    </Expander>
+                </InlineUIContainer>
+                <LineBreak />
+                <Run Text="iojuojiojoijoijiojvrfoverfeepv everivrever"/>
+            </Paragraph>
+            
+        </RichTextBlock>
+    </Grid>
+</Window>

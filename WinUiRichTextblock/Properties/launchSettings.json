@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WinUiRichTextblock (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "WinUiRichTextblock (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
