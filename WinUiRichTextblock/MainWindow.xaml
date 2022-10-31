@@ -7,18 +7,92 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid>
+    <Grid Padding="4">
         <RichTextBlock>
             <Paragraph>
-                <Run Text="iojuojiojoijoijiojvrfoverfeepv everivrever"/>
+                <Run Text="J'ai vu pas mal de commentaire négatifs donc je vais donner mon avis pour contrebalancer. Clairement ce n'est pas le manga du siècle mais je trouve qu'il a plusieurs points intéressants. Pour un Isekai je le trouve assez particulier. Le maître du jeu est tellement bizarre qu'il en est drôle, les héros sont tous assez spéciaux et c'est ce que j'ai aimé, le héros est égoïste et il l'assume. Ça change des héros naïfs et gentils. J'ai vraiment aimé le dernier épisode qui change un peu l'intrigue et approfondi les thèmes.
+La difficulté est aussi grande! Ils galèrent de ouf, en dirait plus une punition qu'un jeu.
+En points négatifs je dirais, l'animation n'est pas exceptionnelle c'est sûr (Après ya pire franchement). Et aussi, l'émotion est mal retranscrite, je veux dire par là que on ne ressent que peu ce que ressentent les persos, enfin ça m'a pas percutée. Je n'ai pas été transportée émotionnellement. C'est le petit défaut.
+Après le reste est très prometteur. A voir dans la saison 2 !"/>
                 <LineBreak />
-                <InlineUIContainer>
-                    <Expander Header="Spoil" VerticalAlignment="Center">
-                        <TextBlock Text="oidpozi^pzipovrujàvbp"></TextBlock>
+                <LineBreak />
+                <Run Text="Pour les gens qui croient que c'est un Harem, alors là pas du tout! Au contraire ensuite ya un mec qui arrive il semblerait. Et puis ya pas de romance spécialement" />
+                <LineBreak />
+                <LineBreak />
+                <InlineUIContainer >
+                    <Expander VerticalAlignment="Center">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <HyperlinkButton Content="Manaka"/>
+                                <TextBlock Text="a écrit" VerticalAlignment="Center"/>
+                            </StackPanel>                        
+                        </Expander.Header>
+                        <TextBlock Text="à part avec Kahabell ou Shindo peut-être?(même pas pour l'instant lol)"></TextBlock>
                     </Expander>
                 </InlineUIContainer>
                 <LineBreak />
-                <Run Text="iojuojiojoijoijiojvrfoverfeepv everivrever"/>
+                <LineBreak />
+                <InlineUIContainer >
+                    <Rectangle Height="0.5" Fill="White" HorizontalAlignment="Stretch" />
+                </InlineUIContainer>
+                <LineBreak />
+                <InlineUIContainer>
+                    <Expander Header="Spoil" VerticalAlignment="Center">
+                        <StackPanel>
+                            <TextBlock Text="iuihi"/>
+                            <Expander Header="Spoil" VerticalAlignment="Center">
+                                <Expander Header="Spoil" VerticalAlignment="Center">
+                                    <TextBlock Text="à part avec Kahabell ou Shindo peut-être?(même pas pour l'instant lol)"></TextBlock>
+                                </Expander>
+                            </Expander>
+                        </StackPanel>
+                    </Expander>
+                </InlineUIContainer>
+                <LineBreak />
+                <LineBreak />
+                <InlineUIContainer>
+                    <Expander Header="Spoil" VerticalAlignment="Center">
+                        <StackPanel>
+                            <TextBlock Text="iuihi"/>
+                            <Expander Header="Spoil" VerticalAlignment="Center">
+                                <Expander Header="Spoil" VerticalAlignment="Center">
+                                    <TextBlock Text="à part avec Kahabell ou Shindo peut-être?(même pas pour l'instant lol)"></TextBlock>
+                                </Expander>
+                            </Expander>
+                        </StackPanel>
+                    </Expander>
+                </InlineUIContainer>
+                <LineBreak />
+                <LineBreak />
+                <InlineUIContainer>
+                    <Expander Header="Spoil" VerticalAlignment="Center">
+                        <RichTextBlock>
+                            <Paragraph>
+                                <Run Text="J'ai vu pas mal de commentaire négatifs donc je vais donner mon avis pour contrebalancer. Clairement ce n'est pas le manga du siècle mais je trouve qu'il a plusieurs points intéressants. Pour un Isekai je le trouve assez particulier. Le maître du jeu est tellement bizarre qu'il en est drôle, les héros sont tous assez spéciaux et c'est ce que j'ai aimé, le héros est égoïste et il l'assume. Ça change des héros naïfs et gentils. J'ai vraiment aimé le dernier épisode qui change un peu l'intrigue et approfondi les thèmes.
+La difficulté est aussi grande! Ils galèrent de ouf, en dirait plus une punition qu'un jeu.
+En points négatifs je dirais, l'animation n'est pas exceptionnelle c'est sûr (Après ya pire franchement). Et aussi, l'émotion est mal retranscrite, je veux dire par là que on ne ressent que peu ce que ressentent les persos, enfin ça m'a pas percutée. Je n'ai pas été transportée émotionnellement. C'est le petit défaut.
+Après le reste est très prometteur. A voir dans la saison 2 !"/>
+                            </Paragraph>
+                        </RichTextBlock>
+                    </Expander>
+                </InlineUIContainer>
+                <LineBreak />
+                <LineBreak />
+                <InlineUIContainer>
+                    <Border BorderBrush="WhiteSmoke" BorderThickness="2 0 0 0" Padding="8 0 0 0">
+                        <RichTextBlock>
+                            <Paragraph>
+                                <Run Text="J'ai vu pas mal de commentaire négatifs donc je vais donner mon avis pour contrebalancer. Clairement ce n'est pas le manga du siècle mais je trouve qu'il a plusieurs points intéressants. Pour un Isekai je le trouve assez particulier. Le maître du jeu est tellement bizarre qu'il en est drôle, les héros sont tous assez spéciaux et c'est ce que j'ai aimé, le héros est égoïste et il l'assume. Ça change des héros naïfs et gentils. J'ai vraiment aimé le dernier épisode qui change un peu l'intrigue et approfondi les thèmes.
+La difficulté est aussi grande! Ils galèrent de ouf, en dirait plus une punition qu'un jeu.
+En points négatifs je dirais, l'animation n'est pas exceptionnelle c'est sûr (Après ya pire franchement). Et aussi, l'émotion est mal retranscrite, je veux dire par là que on ne ressent que peu ce que ressentent les persos, enfin ça m'a pas percutée. Je n'ai pas été transportée émotionnellement. C'est le petit défaut.
+Après le reste est très prometteur. A voir dans la saison 2 !"/>
+                            </Paragraph>
+                        </RichTextBlock>
+                    </Border>
+                </InlineUIContainer>
+                <LineBreak />
+                <Run Text=", ni de ecchi (ça c'est top!) Donc ne partez pas trop vite en besogne. Moi qui déteste les harems, je n'en ai rien ressenti dans cet animé donc foncez! Faites vous votre propre avis!"/>
+                <Hyperlink >ijiojoijoijoijoijoijojojoijo</Hyperlink>
             </Paragraph>
             
         </RichTextBlock>
